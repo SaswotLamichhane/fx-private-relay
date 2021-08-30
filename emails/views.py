@@ -411,9 +411,9 @@ def _handle_reply(message_json):
         outbound_from_address = relay_address.full_address
     elif domain_address:
         raise Exception("Haven't ipmlemented domain replies yet.")
-    decrypted_metadata = decrypt_reply_metadata(
+    decrypted_metadata = json.loads(decrypt_reply_metadata(
         encryption_key, reply_record.encrypted_metadata
-    )
+    ))
     incr_if_enabled('reply_email', 1)
     outbound_reply_to_address = outbound_from_address
     subject = mail['commonHeaders'].get('subject', '')
