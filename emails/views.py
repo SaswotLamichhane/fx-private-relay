@@ -38,6 +38,7 @@ from .models import (
     Reply
 )
 from .utils import (
+    b64_lookup_key,
     get_email_domain_from_settings,
     get_post_data_from_request,
     incr_if_enabled,
@@ -403,7 +404,7 @@ def _handle_reply(message_json):
     (lookup_key, encryption_key) = derive_reply_keys(
         message_id_bytes
     )
-    lookup=base64.urlsafe_b64encode(lookup_key).decode('ascii')
+    lookup = b64_lookup_key(lookup_key)
     reply_record = Reply.objects.get(lookup=lookup)
     relay_address = reply_record.relay_address
     domain_address = reply_record.domain_address

@@ -132,7 +132,7 @@ def ses_send_raw_email(
                 reply_metadata[header['name'].lower()] = header['value']
         message_id_bytes = get_message_id_bytes(ses_response['MessageId'])
         (lookup_key, encryption_key) = derive_reply_keys(message_id_bytes)
-        lookup = base64.urlsafe_b64encode(lookup_key).decode('ascii')
+        lookup = b64_lookup_key(lookup_key)
         encrypted_metadata = encrypt_reply_metadata(
             encryption_key, reply_metadata
         )
@@ -217,6 +217,10 @@ def generate_relay_From(original_from_address):
 def get_message_id_bytes(message_id_str):
     message_id = message_id_str.split("@", 1)[0].rsplit("<", 1)[-1].strip()
     return message_id.encode()
+
+
+def b64_lookup_key(lookup_key):
+    return base64.urlsafe_b64encode(lookup_key).decode('ascii')
 
 
 def derive_reply_keys(message_id):
