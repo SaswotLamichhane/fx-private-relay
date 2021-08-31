@@ -375,3 +375,4 @@ class Reply(models.Model):
     domain_address = models.ForeignKey(DomainAddress, on_delete=models.CASCADE, blank=True, null=True)
     lookup = models.CharField(max_length=255, blank=False)
     encrypted_metadata = models.TextField(blank=False)
+    created_at = models.DateField(auto_now_add=True, null=False)
