@@ -204,16 +204,16 @@
 
 .c-alias-name {
     margin-left: $spacing-xs;
-    max-width: $content-sm;
     height: 100%;
     flex-wrap: nowrap;
-
-    .additional-notes, .relay-address {
-        text-overflow: ellipsis;
-    }
+    max-width: 100%;
 
     .relay-address {
         display: none;
+
+        @media #{$mq-md} {
+            display: block;
+        }
     }
 
     .additional-notes.show-label + button {
@@ -225,17 +225,33 @@
     }
 
     input {
+        color: $color-grey-50;
+        display: flex;
+        align-items: center;
+        background: transparent;
+        font-size: 1em;
+        padding: $spacing-sm $spacing-lg $spacing-sm $spacing-sm;
+        width: $content-xs;
         text-overflow: ellipsis;
-        width: inherit;
-        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        transition: all .2s ease;
+        // Reset styles from protocol
+        background-color: none;
+        border-radius: 0;
+        border: 0;
+        margin: 0;
+        list-style: inherit;
+        min-width: 100%;
     }
 
-    @media #{$mq-md} {
+    @media screen and (max-width: $screen-sm) {
 
-        .relay-address {
-            display: block;
+        input {
+            width: auto;
         }
-
+    }
+    @media #{$mq-md} {
         margin-left: 0;
     }
 }
@@ -382,4 +398,34 @@
         justify-content: flex-start;
     }
 
+}
+
+
+.show-label.additional-notes {
+    visibility: visible;
+    pointer-events: all;
+    display: flex;
+}
+
+.additional-notes {
+    display: none;
+    text-overflow: ellipsis;
+    flex-direction: row;
+    position: relative;
+    margin: auto auto 0 0;
+    max-width: $content-xs;
+
+    &::after {
+        content: "";
+        min-width: 16px;
+        min-height: 16px;
+        margin-left: -$spacing-lg;
+        display: inline-block;
+        background: url("/static/images/edit.svg");
+        background-repeat: no-repeat;
+        background-position: center center;
+        pointer-events: none;
+        background-size: contain;
+        opacity: .6;
+    }
 }
