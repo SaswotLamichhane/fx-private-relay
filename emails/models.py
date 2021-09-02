@@ -349,7 +349,10 @@ class DomainAddress(models.Model):
                 TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
             )
 
-        domain_address = DomainAddress.objects.create(user=user_profile.user, address=address)
+        domain_address = DomainAddress.objects.create(
+            user=user_profile.user,
+            address=address,
+        )
         if made_via_email:
             # update first_emailed_at indicating alias generation impromptu.
             domain_address.first_emailed_at = datetime.now(timezone.utc)

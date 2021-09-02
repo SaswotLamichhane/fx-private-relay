@@ -1,4 +1,3 @@
-import base64
 from datetime import datetime, timezone
 from email import message_from_bytes, policy
 from email.utils import parseaddr
@@ -25,7 +24,6 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
-from .context_processors import relay_from_domain
 from .models import (
     address_hash,
     CannotMakeAddressException,
@@ -39,7 +37,6 @@ from .models import (
 )
 from .utils import (
     b64_lookup_key,
-    get_email_domain_from_settings,
     get_post_data_from_request,
     incr_if_enabled,
     histogram_if_enabled,
@@ -292,18 +289,8 @@ def _sns_message(message_json):
 
     from_address = parseaddr(mail['commonHeaders']['from'][0])[1]
     to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
-    to_local_portion = to_address.split('@')[0]
-    if to_local_portion == 'replies':
-        user = User.objects.get(email=from_address)
-        profile = user.profile_set.first()
-        if not profile.has_premium:
-            # TODO: send the user an email that replies are a premium feature
-            return HttpResponse(
-                "Rely replies require a premium account", status=403
-            )
-        return _handle_reply(message_json)
-
-    to_domain_portion = to_address.split('@')[1]
+    [to_local_portion, to_domain_portion] = to_address.split('@')
+    # to_domain_portion = to_address.split('@')[1]
     try:
         # FIXME: this ambiguous return of either
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
@@ -311,6 +298,16 @@ def _sns_message(message_json):
         address = _get_address(to_address, to_local_portion, to_domain_portion)
         user_profile = address.user.profile_set.first()
     except Exception:
+        if to_local_portion == 'replies':
+            user = User.objects.get(email=from_address)
+            profile = user.profile_set.first()
+            if not profile.has_premium:
+                # TODO: send the user an email that replies are a premium feature
+                return HttpResponse(
+                    "Rely replies require a premium account", status=403
+                )
+            return _handle_reply(message_json)
+
         return HttpResponse("Address does not exist", status=404)
 
     address_hash = sha256(to_address.encode('utf-8')).hexdigest()
